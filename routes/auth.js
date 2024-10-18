@@ -84,6 +84,37 @@ router.post('/verify-email-otp', async (req, res) => {
     }
 });
 
+// Resend Email OTP
+router.post('/resend-email-otp', async (req, res) => {
+    const { companyEmail } = req.body;
+
+    try {
+        const company = await Company.findOne({ companyEmail });
+        if (!company) return res.status(400).json({ message: 'Company not found' });
+
+        if (company.isEmailVerified) return res.status(400).json({ message: 'Email is already verified.' });
+
+        const newEmailOtp = crypto.randomInt(100000, 999999).toString();
+        const newOtpExpiration = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+
+        company.emailOtp = newEmailOtp;
+        company.otpExpiration = newOtpExpiration;
+        await company.save();
+
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: companyEmail,
+            subject: 'Your OTP for Verification',
+            text: `Your email verification OTP is: ${emailOtp}`,
+        });
+
+        res.json({ message: 'A new OTP has been sent to your email.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
+
 // Verify Phone OTP
 router.post('/verify-phone-otp', async (req, res) => {
     const { companyEmail, phoneOtp } = req.body;

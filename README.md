@@ -28,7 +28,7 @@ This is the backend for the Job Posting Board project, built using the MERN stac
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yslati/cuvette-api.git
+   git clone https://github.com/yslati/cuvetter-api.git
    cd cuvette-api
    ```
 2. Install the dependencies:
