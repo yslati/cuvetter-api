@@ -12,6 +12,7 @@ const companySchema = new mongoose.Schema({
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
+    refreshToken: { type: String, default: null },
 });
 
 const Company = mongoose.model('Company', companySchema);

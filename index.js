@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
+const jobRoutes = require('./routes/jobs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,8 +20,8 @@ app.get('/', (req, res) => {
     res.send('Test!');
 });
 
-// authentication routes
 app.use('/auth', authRoutes);
+app.use('/jobs', jobRoutes);
 
 
 app.listen(PORT, () => {

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const Company = require('../models/Company');
+const { generateAccessToken, generateRefreshToken } = require('../utils/tokenUtils');
 
 const router = express.Router();
 
@@ -70,14 +71,16 @@ router.post('/verify-email-otp', async (req, res) => {
         if (company.emailOtp && company.emailOtp !== emailOtp) return res.status(400).json({ message: 'Invalid OTP' });
         if (company.otpExpiration < new Date()) return res.status(400).json({ message: 'expired OTP' });
 
+        const refreshToken = generateRefreshToken();
+
         company.isEmailVerified = true;
         company.emailOtp = "";
         if (company.isPhoneVerified) company.isVerified = true;
+        company.refreshToken = refreshToken
         await company.save();
-
-        const token = jwt.sign({ companyId: company._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        res.json({ token, message: 'Email OTP verification successful.' });
+        
+        const accessToken = generateAccessToken(company._id);
+        res.json({ accessToken, refreshToken, message: 'Email OTP verification successful.' });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -134,6 +137,27 @@ router.post('/verify-phone-otp', async (req, res) => {
         const token = jwt.sign({ companyId: company._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.json({ token, message: 'Phone OTP verification successful.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Refresh the JWT token
+router.post('/refresh-token', async (req, res) => {
+    const { companyEmail, refreshToken } = req.body;
+
+    try {
+        const company = await Company.findOne({ companyEmail });
+        if (!company) return res.status(400).json({ message: 'Company not found' });
+
+        if (company.refreshToken !== refreshToken) {
+            return res.status(400).json({ message: 'Invalid refresh token' });
+        }
+
+        const newAccessToken = jwt.sign({ companyId: company._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.json({ accessToken: newAccessToken });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
