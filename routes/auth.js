@@ -53,7 +53,8 @@ router.post('/register', async (req, res) => {
 
         // SMS OTP
 
-        res.json({ message: 'Registration successful. Please verify your email and phone number.' });
+        const { emailOtp: _, phoneOtp: __, ...companyData } = company.toObject();
+        res.json({ message: 'Registration successful. Please verify your email and phone number.', companyData });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
