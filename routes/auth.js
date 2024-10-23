@@ -59,7 +59,7 @@ router.post('/verify-email-otp', async (req, res) => {
         
         company.isEmailVerified = true;
         company.emailOtp = "";
-        if (company.isPhoneVerified) {
+        if (company.isPhoneVerified && !company.isVerified) {
             company.isVerified = true;
             company.refreshToken = generateRefreshToken();
             accessToken = generateAccessToken(company._id);
@@ -88,7 +88,7 @@ router.post('/verify-phone-otp', async (req, res) => {
         
         company.isPhoneVerified = true;
         company.phoneOtp = "";
-        if (company.isEmailVerified) {
+        if (company.isEmailVerified && !company.isVerified) {
             company.isVerified = true;
             company.refreshToken = generateRefreshToken();
             accessToken = generateAccessToken(company._id);
@@ -131,6 +131,11 @@ router.post('/login', async (req, res) => {
     try {
         const company = await Company.findOne({ companyEmail });
         if (!company) return res.status(400).json({ message: 'Company not found' });
+
+        if (company.otpExpiration > new Date() && company.emailOtp) {
+            const { emailOtp: _, phoneOtp: __, ...companyData } = company.toObject();
+            return res.json({ message: 'OTP already sent', companyData });
+        }
 
         if (!company.isPhoneVerified) {
             company.phoneOtp = crypto.randomInt(100000, 999999).toString(); 
