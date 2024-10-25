@@ -59,11 +59,12 @@ router.post('/verify-email-otp', async (req, res) => {
         
         company.isEmailVerified = true;
         company.emailOtp = "";
-        if (company.isPhoneVerified && !company.isVerified) {
+        if (company.isPhoneVerified) {
             company.isVerified = true;
             company.refreshToken = generateRefreshToken();
             accessToken = generateAccessToken(company._id);
         }
+
         await company.save();
         const { emailOtp: _, phoneOtp: __, ...companyData } = company.toObject();
         
@@ -88,7 +89,7 @@ router.post('/verify-phone-otp', async (req, res) => {
         
         company.isPhoneVerified = true;
         company.phoneOtp = "";
-        if (company.isEmailVerified && !company.isVerified) {
+        if (company.isEmailVerified) {
             company.isVerified = true;
             company.refreshToken = generateRefreshToken();
             accessToken = generateAccessToken(company._id);
@@ -105,10 +106,10 @@ router.post('/verify-phone-otp', async (req, res) => {
 
 // Refresh the JWT token
 router.post('/refresh-token', async (req, res) => {
-    const { companyEmail, refreshToken } = req.body;
+    const { refreshToken } = req.body;
 
     try {
-        const company = await Company.findOne({ companyEmail });
+        const company = await Company.findOne({ refreshToken });
         if (!company) return res.status(400).json({ message: 'Company not found' });
 
         if (company.refreshToken !== refreshToken) {
@@ -116,8 +117,9 @@ router.post('/refresh-token', async (req, res) => {
         }
 
         const newAccessToken = jwt.sign({ companyId: company._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const { emailOtp: _, phoneOtp: __, ...companyData } = company.toObject();
 
-        res.json({ accessToken: newAccessToken });
+        res.json({ accessToken: newAccessToken, company: companyData });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
