@@ -5,7 +5,7 @@ const JobSchema = new mongoose.Schema({
     jobTitle: { type: String, required: true },
     jobDescription: { type: String, required: true },
     experienceLevel: { type: String, required: true },
-    candidates: [{ type: String }],
+    candidate: { type: String, required: true },
     endDate: { type: Date, required: true },
     postedAt: { type: Date, default: Date.now }
 });
