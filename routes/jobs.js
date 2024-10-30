@@ -37,4 +37,19 @@ router.post('/post-job', authenticate, async (req, res) => {
     }
 });
 
+// Get all jobs posted by the logged-in company
+router.get('/company-jobs', authenticate, async (req, res) => {    
+    try {
+        const companyId = req.companyId;
+        if (!companyId) return res.status(400).json({ message: "Company ID not found" });
+
+        const jobs = await Job.find({ companyId });
+
+        res.json({ jobs });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
+
 module.exports = router;
