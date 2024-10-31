@@ -5,7 +5,7 @@ const jobSchema = Joi.object({
     jobTitle: Joi.string().min(3).max(100).required(),
     jobDescription: Joi.string().min(10).max(2000).required(),
     experienceLevel: Joi.string().valid('Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Lead Developer').required(),
-    candidate: Joi.string().email().required(),
+    candidate: Joi.array().items(Joi.string().email()).min(1).required(),
     endDate: Joi.date().iso().greater('now').required(),
 });
 

@@ -4,6 +4,7 @@ const authenticate = require('../middleware/authenticate');
 const Job = require('../models/Job');
 const Company = require('../models/Company');
 const { jobSchema } = require('../utils/jobValidation');
+const sendEmail = require('../utils/sendEmail');
 
 const router = express.Router();
 
@@ -29,6 +30,16 @@ router.post('/post-job', authenticate, async (req, res) => {
             endDate
         });
         await job.save();
+
+        const emailPromises = candidate.map((email) => {
+            const emailOptions = {
+                to: email,
+                subject: `New Job Opportunity: ${jobTitle}`,
+                text: `Hi,\n\nA new job has been posted:\n\nTitle: ${jobTitle}\nDescription: ${jobDescription}\nExperience Level: ${experienceLevel}\nEnd Date: ${endDate}\n\nBest,\n${company.name}`
+            };
+            return sendEmail(emailOptions);
+        });
+        await Promise.all(emailPromises);
 
         res.json({ message: 'Job posted successfully', job });
     } catch (err) {

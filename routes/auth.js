@@ -149,7 +149,7 @@ router.post('/login', async (req, res) => {
         company.otpExpiration = new Date(Date.now() + 10 * 60 * 1000); // 10 min
         await company.save();
         
-        // sendEmail(companyEmail, emailOtp)
+        sendEmail(companyEmail, company.emailOtp)
 
         const { emailOtp: _, phoneOtp: __, ...companyData } = company.toObject();
         res.json({ companyData });
