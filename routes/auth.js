@@ -33,8 +33,8 @@ router.post('/register', async (req, res) => {
 
         await company.save();
 
-        // sendEmail(companyEmail, emailOtp)
-        // sendSms(phoneNumber, phoneOtp);
+        sendEmail(companyEmail, emailOtp)
+        sendSms(phoneNumber, phoneOtp);
 
         const { emailOtp: _, phoneOtp: __, ...companyData } = company.toObject();
         res.json({ message: 'Registration successful. Please verify your email and phone number.', companyData });
@@ -141,7 +141,7 @@ router.post('/login', async (req, res) => {
 
         if (!company.isPhoneVerified) {
             company.phoneOtp = crypto.randomInt(100000, 999999).toString(); 
-            // sendSms(phoneNumber, phoneOtp);
+            sendSms(phoneNumber, phoneOtp);
         }
         
         company.isEmailVerified = false
