@@ -32,6 +32,16 @@ const sendEmail = async (companyEmail, emailOtp) => {
     }
 };
 
+const sendJobEmail = async (emailOptions) => {
+    try {
+        await transporter.sendMail(emailOptions);
+        console.log('Job Email sent successfully');
+    } catch (err) {
+        console.log('There was an error sending the Job email.');
+        console.error(err);
+    }
+};
+
 const sendSms = async (phoneNumber, phoneOtp) => {
     try {
         const response = await vonage.sms.send({
@@ -47,4 +57,4 @@ const sendSms = async (phoneNumber, phoneOtp) => {
     }
 };
 
-module.exports = { sendEmail, sendSms };
+module.exports = { sendEmail, sendSms, sendJobEmail };
