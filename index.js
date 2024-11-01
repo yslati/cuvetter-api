@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
 const jobRoutes = require('./routes/jobs');
-const cors=require("cors");
+const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -11,9 +11,9 @@ const corsOptions ={
     origin:'*', 
     credentials:true,
     optionSuccessStatus:200,
- }
+}
 
-app.use(express.json());
+app.use(cors(corsOptions))
 
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('MongoDB connected'))
@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
     res.send('Test!');
 });
 
-app.use(cors(corsOptions))
+app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/jobs', jobRoutes);
 
