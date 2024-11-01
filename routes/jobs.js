@@ -4,7 +4,7 @@ const authenticate = require('../middleware/authenticate');
 const Job = require('../models/Job');
 const Company = require('../models/Company');
 const { jobSchema } = require('../utils/jobValidation');
-const sendEmail = require('../utils/sendEmail');
+const { sendEmail } = require('../utils/otp');
 
 const router = express.Router();
 
