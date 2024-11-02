@@ -18,18 +18,24 @@ const vonage = new Vonage({
 });
 
 const sendEmail = async (companyEmail, emailOtp) => {
-    try {
-        await transporter.sendMail({
+    await new Promise((resolve, reject) => {
+        transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: companyEmail,
             subject: 'Your OTP for Verification',
             text: `Your email verification OTP is: ${emailOtp}`,
-        });
-        console.log('Email sent successfully');
-    } catch (err) {
-        console.log('There was an error sending the email.');
-        console.error(err);
-    }
+        }, (err, info) => {
+            if (err) {
+                console.log('There was an error sending the email.');
+                console.error(err);
+                reject(err);
+            } else {
+                console.log('Email sent successfully');
+                console.log(info);
+                resolve(info);
+            }
+        })
+    })
 };
 
 const sendJobEmail = async (emailOptions) => {
